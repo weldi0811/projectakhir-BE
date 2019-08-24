@@ -5,7 +5,7 @@ const conn = mysql.createConnection(
         user: 'userbersama',
         password: 'Mysql123',
         host: '127.0.0.1',
-        database: 'ithink',
+        database: 'ithink2',
         port : 3306
     }
 )
