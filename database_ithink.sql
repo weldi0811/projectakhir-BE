@@ -1,13 +1,9 @@
-create database ithink2;
-use ithink2;
+use ithink3;
 
-select * from category;
-select * from product;
-
-select * from product inner join category on product.category_id = category.id where category.id = 2;
+select*from product;
+select*from cart;
 select * from users;
 
-select * from product;
 
 create table users (
 	id int primary key auto_increment,
@@ -42,10 +38,19 @@ create table product (
     stock_XL int(3) default 0,
     price int(7) not null,
     weight int(4) not null,
+    status varchar(255),
+    thumbnail varchar(255),
+    description longtext not null,
     foreign key (category_id) references category(id)
     on update cascade
     on delete cascade
     );
+    
+update product set status = true where id < 100;
+    
+
+
+
 create table product_photos (
 	id int primary key auto_increment,
     pp_product varchar(50),
@@ -67,49 +72,70 @@ create table wishlist (
     on update cascade
     on delete cascade
     );
-create table order_details (
-	id int primary key auto_increment,
-    user_id_od int not null,
-    product_id_od int(3) null,
-    qty_od_s int,
-    qty_od_m int,
-    qty_od_L int,
-    qty_od_XL int,
-    total_price_od int,
-    total_weight_od int,
-    foreign key (user_id_od) references users(id)
+    
+create table cart (
+	id int primary key auto_increment not null,
+    user_id int not null,
+    product_id int not null,
+    qty_S int not null,
+    qty_M int not null,
+    qty_L int not null,
+    qty_XL int not null,
+    foreign key (user_id) references users(id)
     on update cascade
     on delete cascade,
-    foreign key (product_id_od) references product(id)
-    on update cascade
-    on delete cascade
-    );
-create table orders (
-	id int primary key auto_increment,
-    od_id int not null,
-    user_id_orders int not null,
-    product_id_orders int not null,
-    total_price int,
-	total_weight int,
-    ship_address varchar(100),
-    ship_city varchar(30),
-    ship_postalcode varchar(8),
-    ship_fee int,
-    order_status varchar(15),
-    resi varchar(30),
-    foreign key (od_id) references order_details(id)
-    on update cascade
-    on delete cascade
-    );
-create table confirmation (
-	id int primary key auto_increment,
-    orders_id int,
-    status varchar(20),
-    foreign key (orders_id) references orders(id)
+    foreign key (product_id) references product(id)
     on update cascade
     on delete cascade
     );
     
+create table checkout(
+	id int not null primary key auto_increment,
+	user_id int not null,
+    total_price int not null,
+    total_weight int not null,
+    order_status enum('waiting payment', 'rejected','processing', 'sent' ),
+    order_address varchar(255),
+    order_name varchar(255),
+    order_phonenumber varchar(255),
+    order_awb varchar(30),
+    proof_of_payment varchar(255),
+    created_at timestamp,
+    updated_at timestamp,
+    foreign key (user_id) references users(id)
+    on update cascade
+    on delete cascade
+    );
+    
+create table checkout_details (
+	id int not null primary key auto_increment,
+    checkout_id int not null,
+    product_name varchar(255) not null,
+    product_price int(7) not null,
+    product_category varchar(255) not null,
+    qty_S int not null,
+    qty_M int not null,
+    qty_L int not null,
+    qty_XL int not null,
+    thumbnail varchar(255),
+    created_at timestamp,
+    updated_at timestamp,
+    foreign key (checkout_id) references checkout(id)
+    on update cascade
+    on delete cascade
+);
+
+    
+
+    
+
+
+
+    
+
+    
+    
+
     
     
     

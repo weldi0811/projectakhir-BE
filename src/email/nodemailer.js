@@ -16,10 +16,11 @@ const transporter = nodemailer.createTransport(
 const mailVerify = (user) => { 
     var {first_name,username,email} = user
     const mail = {
-        from : 'G2A.com',
+        from : 'Ithink',
         to : email,
-        subject : 'Congratulations!',
-        html : `<h1>Mohon segera menyelesaikan pembayaran atas nama ${first_name}</h1>
+        subject : 'Verifikasi Akun iThink anda',
+        html : `<h1>hai ${first_name}</h1>
+                <p>Satu langkah lagi untuk mengakses iThink, klik link dibawah untuk verifikasi akun anda</p>
                 <img src='https://asset.kompas.com/crop/13x0:894x587/750x500/data/photo/2018/11/23/4178012753.jpg'>
                 <a href='http://localhost:4000/verify?username=${username}'>klik untuk verifikasi</a>`
     }

@@ -158,13 +158,11 @@ router.post('/users/input', (req,res) => {
         let usernameExist = result.filter(userObject => {
             return userObject.username === data.username
         })
-
         if(usernameExist.length === 1){
             return res.send('username already used')
         }
-
         let emailExist = result.filter(userObject => {
-            return userObject.email === emailExist.email
+            return userObject.email === data.email
         })
         if(emailExist.length === 1){
             return res.send('email already registerd')
@@ -233,10 +231,10 @@ router.patch('/users/profile/:username', (req,res) => {
 })
 
 //upload avatar
-//INGET DI POSTMAN, USERNAME DIISI DULUAN BARU AVATAR OKE
-
-router.post('/users/avatar', upstore.single('avatar'), (req,res) => {
-    const sql = `update users set avatar = '${req.file.filename}' where username = '${req.body.username}'`
+//INGET DI POSTMAN, ID DIISI DULUAN BARU AVATAR OKE
+//TES GANTI POST KE PATCH
+router.patch('/users/avatar', upstore.single('avatar'), (req,res) => {
+    const sql = `update users set avatar = '${req.file.filename}' where id = '${req.body.id}'`
     
 
     conn.query(sql,(err,result) => {
@@ -266,9 +264,9 @@ router.get('/users/avatar/:avatarname', (req,res) => {
 })
 
 //DELETE IMAGE DI DIREKTORI
-router.delete('/users/avatar', (req,res) => {
-    const sql = `select * from users where username = '${req.body.username}'`
-    const sql2 = `update users set avatar = null where username = '${req.body.username}'`
+router.delete('/users/avatar/:id', (req,res) => {
+    const sql = `select * from users where id = '${req.params.id}'`
+    const sql2 = `update users set avatar = null where id = '${req.params.id}'`
 
     conn.query(sql,(err,result)=> {
         if(err) return res.send(err)
@@ -297,6 +295,16 @@ router.delete('/users/avatar', (req,res) => {
 
 
 //verify user ??
+router.get('/verify', (req,res) => {
+    const sql = `update users set verified = true where username = ?`
+    const data = req.query.username
+
+    conn.query(sql,data,(err,result) => {
+        if (err) return res.send(err)
+
+        res.send('<h1>Selamat, akun anda telah terverifikasi</h1>')
+    })
+})
 
 
 

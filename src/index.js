@@ -6,6 +6,7 @@ const portconfig = require('./config/port')
 const userRouter = require('./routers/userRouter')
 const productRouter = require('./routers/productRouter')
 const orderRouter = require('./routers/orderRouter')
+const cartRouter = require('./routers/cartRouter')
 
 
 const server = express()
@@ -17,6 +18,8 @@ server.use(express.json())
 server.use(userRouter)
 server.use(productRouter)
 server.use(orderRouter)
+server.use(cartRouter)
+
 
 server.get('/',(req,res) => {
     res.send('hai')
