@@ -5,6 +5,8 @@ const path = require('path')
 const rootdir = path.join(__dirname , '/../..' )
 const confirmationProve = path.join (rootdir, '/upload/confirmationProve' )
 const fs = require('fs')
+const mailResi = require('../email/nodemailer2')
+const mailPOP = require('../email/nodemailer3')
 
 
 const folder = multer.diskStorage(
@@ -44,10 +46,18 @@ router.patch('/confirmation', upstore.single('proof_of_payment'), (req,res) => {
     const sql = `update checkout set proof_of_payment = '${req.file.filename}' ,
     order_status = 'pending' where id = ${req.body.id}`
 
+    const sql2 = `select * from admin`
+
     conn.query(sql, (err,result) => {
         if(err) return res.send(err)
 
-        res.send(result)
+        conn.query(sql2,(err,result2) => {
+            if(err) return res.send(err)
+
+            res.send(result)
+
+            mailPOP(result2[0])
+        })
     })
 })
 
@@ -195,18 +205,21 @@ router.get('/alltransactions', (req,res) => {
     total_price, order_name, order_address, order_phonenumber,
     order_awb, order_status,proof_of_payment, 
     DATE_FORMAT(checkout.created_at, "%a %D %M %Y") 'created_at' from checkout
-    join users on users.id = checkout.user_id`
+    join users on users.id = checkout.user_id
+    `
 
 
     conn.query(sql, (err,result) => {
         if(err) return res.send(err)
+        
+        res.send(result)
     })
 })
 
 //narik 1 transaksi
 
 router.get('/transactions/:checkout_id', (req,res) => {
-    const sql = `select checkout_id, total_price 
+    const sql = `select checkout_id, total_price,
     cd.product_name, cd.product_price, cd.qty_S, cd.qty_M, cd.qty_L, cd.qty_XL
     from checkout join checkout_details cd on checkout.id = cd.checkout_id
     where checkout_id = ${req.params.checkout_id} `
@@ -223,10 +236,18 @@ router.patch('/updateresi/:id', (req,res) => {
     const sql = `update checkout set order_awb = '${req.body.order_awb}' , order_status = 'sent'
     where id = ${req.params.id} `
 
+    const sql2 = `select  checkout.id, checkout.order_awb, users.email, users.username,checkout.updated_at from checkout join users on checkout.user_id = users.id where checkout.id = ${req.params.id}`
+
     conn.query(sql, (err,result) => {
         if(err) return res.send(err)
 
-        res.send(result)
+        conn.query(sql2, (err,result2) => {
+            if(err) return res.send(err)
+
+            res.send(result2)
+
+            mailResi(result2[0])
+        })
     })
 })
 

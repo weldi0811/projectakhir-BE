@@ -3,6 +3,23 @@ use ithink3;
 select*from product;
 select*from cart;
 select * from users;
+select * from checkout;
+select * from checkout_details;
+select * from admin;
+
+drop table admin;
+
+alter table checkout_details add column created_at timestamp not null default current_timestamp ;
+
+select  checkout.id, checkout.order_awb, users.email, users.username from checkout join users on checkout.user_id = users.id;
+
+
+
+delete from checkout_details where id<5;
+
+alter table checkout drop order_status;
+
+alter table checkout add order_status enum('waiting payment', 'rejected','processing', 'sent', 'pending', 'completed' ) ;
 
 
 create table users (
@@ -25,7 +42,8 @@ create table category(
 create table admin (
 	 id int primary key auto_increment,
      admin_name varchar(20) unique not null,
-     admin_pass varchar(16) not null
+     admin_pass varchar(255) not null,
+     email varchar(255) not null
      );
     
 create table product (
@@ -42,6 +60,7 @@ create table product (
     thumbnail varchar(255),
     description longtext not null,
     foreign key (category_id) references category(id)
+    
     on update cascade
     on delete cascade
     );
@@ -94,7 +113,7 @@ create table checkout(
 	user_id int not null,
     total_price int not null,
     total_weight int not null,
-    order_status enum('waiting payment', 'rejected','processing', 'sent' ),
+    order_status enum('waiting payment', 'rejected','processing', 'sent', 'pending' ),
     order_address varchar(255),
     order_name varchar(255),
     order_phonenumber varchar(255),

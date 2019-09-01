@@ -129,6 +129,7 @@ router.post('/admin/input', (req,res) => {
 router.post('/users/input', (req,res) => {
     const sqlUnique = `select * from users`
     const sql = `INSERT INTO users set ?`
+    const sql2 = `select * from users where id =? `
     const data = req.body
 
     //username minimum 6 karakter
@@ -173,7 +174,14 @@ router.post('/users/input', (req,res) => {
         if(err){
             return res.send(err)
         }
-        res.send(result1)
+        
+        conn.query(sql2,result1.insertId,(err,result2) => {
+            if(err) return res.send(err)
+
+            res.send(result2)
+
+            mailVerify(result2[0])
+        })
     })
 })
 

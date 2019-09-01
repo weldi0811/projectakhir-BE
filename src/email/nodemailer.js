@@ -32,4 +32,6 @@ const mailVerify = (user) => {
     })
 }
 
+
+
 module.exports = mailVerify
