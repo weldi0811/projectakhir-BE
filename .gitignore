@@ -1,2 +1,4 @@
 /node_modules
-/src/email
+/src/email/nodemailer.js
+/src/email/nodemailer2.js
+/src/email/nodemailer3.js
