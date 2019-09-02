@@ -6,6 +6,7 @@ const path = require('path')
 const multer = require('multer')
 const fs = require('fs')
 const mailVerify = require('../email/nodemailer')
+const mailSubscribe = require('../email/subsribe')
 const rootdir = path.join(__dirname , '/../..' )
 const photoUserdir = path.join (rootdir , '/upload/userPhotos')
 
@@ -314,6 +315,62 @@ router.get('/verify', (req,res) => {
     })
 })
 
+
+//subscribe
+
+router.post('/subscribe', (req,res) => {
+    const sql = `insert into subscribe (email) values ('${req.body.email}')`
+    const show = `select * from subscribe where id = ?`
+    const emailUnique = `select * from subscribe`
+
+    if(req.body.email.length < 4){
+        return res.send('please insert valid email')
+    }
+
+    //validate email
+    if(!isEmail(req.body.email)){
+        return res.send('please insert valid email')
+    }
+
+    //filter email
+    conn.query(emailUnique,(err,result) => {
+        if(err) return res.send(err)
+
+        let emailExist = result.filter(emailObject => {
+            return emailObject.email = req.body.email
+        })
+
+        if(emailExist.length === 1){
+            return res.send('email already subscribed')
+        }
+    })
+
+    conn.query(sql,(err,result2) => {
+        if(err) return res.send(err)
+
+        conn.query(show,result2.insertId,(err,result3) => {
+            if(err) return res.send(err)
+
+            res.send(result3)
+
+            mailSubscribe(result3[0])
+        })
+    })
+})
+
+//unsubscribe
+
+router.get('/unsubscribe', (req,res) => {
+    const sql = `update subscribe set subscribed = false where email =?`
+
+    const data = req.query.email
+
+    conn.query(sql,data,(err,result) => {
+        if (err) return res.send(err)
+
+        res.send('<h1>SAnda telah berhenti berlangganan. subscribe lagi kapan saja dimana saja</h1>')
+    })
+})
 
 
 module.exports = router

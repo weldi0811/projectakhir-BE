@@ -41,6 +41,7 @@ const upstore = multer(
 router.post('/product/:category_id', upstore.single('thumbnail'), (req, res) => {
     const { product_name, description, stock_S, stock_M, stock_L, stock_XL, price, weight } = req.body
 
+
     const sql = `insert into product set product_name='${product_name}'
                     ,category_id='${req.params.category_id}'
                     ,stock_S='${stock_S}'
@@ -55,14 +56,11 @@ router.post('/product/:category_id', upstore.single('thumbnail'), (req, res) => 
     conn.query(sql, (err, result) => {
         if (err) return res.send(err)
 
-        res.send({
-            message: 'Sukses input produk',
-            product_name,
-            price,
-            thumbnail: req.file.filename
+        res.send(result)
+
+
         })
     })
-})
 
 //create category
 router.post('/category', (req, res) => {
@@ -210,7 +208,7 @@ router.delete(`/deleteproduct/:id`, (req, res) => {
             conn.query(sql2, (err, result2) => {
                 if (err) return res.send(err)
 
-                res.send('deleted')
+                res.send(result2)
             })
         })
     })
