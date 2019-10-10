@@ -5,7 +5,7 @@ const conn = require('../connection/index')
 //NARIK CART USER
 
 router.get('/cart/:userid', (req,res) => {
-    const sql = `SELECT  cart.cart_id, user_id , username , cart.product_id, product.product_name, product.thumbnail,
+    const sql = `SELECT cart.id, user_id , username , cart.product_id, product.product_name, product.thumbnail, product.category,
     product.price,qty_S,qty_M,qty_L,qty_XL FROM users
     JOIN cart on users.id = cart.user_id
     JOIN product on product.id = cart.product_id

@@ -372,5 +372,45 @@ router.get('/unsubscribe', (req,res) => {
     })
 })
 
+//address
+//add address 
+//LIMITNYA DI FRONTEND
+router.post('/address/:user_id', (req,res) => {
+    const {address_name, address_detail } = req.body
+    const sql = `insert into address (user_id, address_name, address_detail) values (
+        '${req.params.user_id}', '${address_name}', '${address_detail}')`
+
+    conn.query(sql,(err,result) => {
+        if(err) return res.send(err)
+
+    
+        res.send(`Address successfully added : '${address_name}'`)
+    })
+})
+
+//narik address per user
+router.get('/address/:user_id', (req,res) => {
+    const sql = `select * from address where user_id = '${req.params.user_id}'`
+
+    conn.query(sql,(err,result) => {
+        if(err) return res.send(err)
+
+        res.send(result) // []
+    })
+})
+
+//edit address
+router.patch(`/address`, (req,res) => {
+    const {id, address_name, address_detail } = req.body
+    const sql = `update set address_name = '${address_name}',
+    address = '${address_detail}', where id = ${id}`
+
+    conn.query(sql,(err,result) => {
+        if(err) return res.send(err)
+
+        res.send(result)
+    })
+})
+
 
 module.exports = router

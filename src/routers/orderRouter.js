@@ -77,11 +77,11 @@ router.post('/checkout', (req,res) => {
         //mecah array cart jadi object 1 1
 
         const valueCart = cartArray.map ( cart => {
-            return `(${result.insertId}, '${cart.product_name}', '${cart.price}', '${cart.qty_S}', '${cart.qty_M}', '${cart.qty_L}', '${cart.qty_XL}')`
+            return `(${result.insertId}, '${cart.product_name}','${cart.price}', '${cart.qty_S}', '${cart.qty_M}', '${cart.qty_L}', '${cart.qty_XL}', '${cart.thumbnail}')`
         })
 
         const sql2 = `insert into checkout_details 
-        (checkout_id, product_name, product_price, qty_S, qty_M, qty_L, qty_XL)
+        (checkout_id, product_name, product_price, qty_S, qty_M, qty_L, qty_XL, thumbnail)
         values ${valueCart.join(',')}`
 
         conn.query(sql2,(err2,result2) => {
@@ -220,7 +220,7 @@ router.get('/alltransactions', (req,res) => {
 
 router.get('/transactions/:checkout_id', (req,res) => {
     const sql = `select checkout_id, total_price,
-    cd.product_name, cd.product_price, cd.qty_S, cd.qty_M, cd.qty_L, cd.qty_XL
+    cd.product_name, cd.product_price, cd.category, cd.qty_S, cd.qty_M, cd.qty_L, cd.qty_XL, cd.thumbnail
     from checkout join checkout_details cd on checkout.id = cd.checkout_id
     where checkout_id = ${req.params.checkout_id} `
 

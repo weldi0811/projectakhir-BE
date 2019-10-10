@@ -22,10 +22,10 @@ const upstore = multer(
     {
         storage: folder,
         limits: {
-            fileSize: 2000000
+            fileSize: 20000000
         },
         fileFilter(req, file, cb) {
-            var boleh = file.originalname.match(/\.(jpg|jpeg|png|gif)$/)
+            var boleh = file.originalname.match(/\.(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$/)
 
             if (!boleh) {
                 cb(new Error('Hanya menerima file dengan ekstensi jpg, jpeg, png atau gif'))
@@ -37,30 +37,31 @@ const upstore = multer(
     }
 )
 
-//create new product in category
-router.post('/product/:category_id', upstore.single('thumbnail'), (req, res) => {
-    const { product_name, description, stock_S, stock_M, stock_L, stock_XL, price, weight } = req.body
 
 
-    const sql = `insert into product set product_name='${product_name}'
-                    ,category_id='${req.params.category_id}'
-                    ,stock_S='${stock_S}'
-                    ,stock_M='${stock_M}'
-                    ,stock_L='${stock_L}'
-                    ,stock_XL='${stock_XL}'
-                    ,price='${price}'
-                    ,weight='${weight}'
-                    ,description='${description}'
-                    ,thumbnail='${req.file.filename}'`
+//create new product
 
-    conn.query(sql, (err, result) => {
-        if (err) return res.send(err)
+router.post('/products', upstore.single('thumbnail'), (req, res) => {
+    const { product_name, description, category, stock_S, stock_M, stock_L, stock_XL, price, status, weight } = req.body
+
+    const sql = `insert into product set product_name = '${product_name}'
+    ,category='${category}'
+    ,stock_S='${stock_S}'
+    ,stock_M='${stock_M}'
+    ,stock_L='${stock_L}'
+    ,stock_XL='${stock_XL}'
+    ,price='${price}'
+    ,weight='${weight}'
+    ,status='${status}'
+    ,description='${description}'
+    ,thumbnail='${req.file.filename}'`
+
+    conn.query(sql,(err,result) => {
+        if(err) return res.send(err)
 
         res.send(result)
-
-
-        })
     })
+})
 
 //create category
 router.post('/category', (req, res) => {
@@ -69,6 +70,17 @@ router.post('/category', (req, res) => {
 
     conn.query(sql, data, (err, result) => {
         if (err) return res.send(err)
+        res.send(result)
+    })
+})
+
+//narik category
+
+router.get('/category', (req,res) => {
+    const sql = `select* from category`
+
+    conn.query(sql,(err,result) => {
+        if(err) return res.send(err)
         res.send(result)
     })
 })
@@ -107,11 +119,7 @@ router.get('/product/photos/:thumbnail', (req, res) => {
 //narik all product
 
 router.get('/allproduct', (req, res) => {
-    const sql = `select 
-                product.id,product.product_name,category.category,product.stock_S,
-                product.stock_M,product.stock_L,product.stock_XL,
-                product.weight,product.price,product.thumbnail,product.status,product.description
-                from product join category on product.category_id = category.id`
+    const sql = `select * from product`
 
     conn.query(sql, (err, result) => {
         if (err) return res.send(err)
@@ -121,12 +129,8 @@ router.get('/allproduct', (req, res) => {
 })
 
 //narik product by category
-router.get('/products/:category_id', (req, res) => {
-    const sql = `select 
-                product.id,product.product_name,category.category,product.stock_S,
-                product.stock_M,product.stock_L,product.stock_XL,
-                product.weight,product.price,product.thumbnail, product.status, product.description
-                from product inner join category on product.category_id = category.id where category.id = ${req.params.category_id}`
+router.get('/products/:category', (req, res) => {
+    const sql = `select * from product where category = '${req.params.category}'`
 
     conn.query(sql, (err, result) => {
         if (err) return res.send(err)
@@ -138,13 +142,7 @@ router.get('/products/:category_id', (req, res) => {
 //show product by id product
 
 router.get('/product/:prod_id', (req, res) => {
-    const sql = `select 
-                product.id,product.product_name,category.category,product.stock_S,
-                product.stock_M,product.stock_L,product.stock_XL,
-                product.weight,product.price,product.thumbnail,product.status,product.description
-                from product inner join 
-                category on product.category_id = category.id 
-                where product.id = ${req.params.prod_id}`
+    const sql = `select * from product where id = '${req.params.prod_id}'`
 
 
     conn.query(sql, (err, result) => {
@@ -156,30 +154,30 @@ router.get('/product/:prod_id', (req, res) => {
 
 //set item jadi not available
 
-router.patch(`/statusproduct/:id`, (req,res) => {
+router.patch(`/statusproduct/:id`, (req, res) => {
     const sql = `select * from product where id = ${req.params.id}`
-    const sql2 = `update product set status = false where id = ${req.params.id}`
-    const sql3 = `update product set status = true where id = ${req.params.id}`
+    const sql2 = `update product set status = 0 where id = ${req.params.id}`
+    const sql3 = `update product set status = 1 where id = ${req.params.id}`
 
     //cek item ada atau ngga
-    conn.query(sql,(err,result1) => {
-        if(err) return res.send(err)
+    conn.query(sql, (err, result1) => {
+        if (err) return res.send(err)
 
         //update status
-        if(result1[0].status === 1){
-            conn.query(sql2,(err,resultFalse) => {
-                if(err) return res.send(err)
+        if (result1[0].status === 1) {
+            conn.query(sql2, (err, resultFalse) => {
+                if (err) return res.send(err)
 
                 res.send('status = false')
             })
         } else {
             conn.query(sql3, (err, resultTrue) => {
-                if(err) return res.send(err)
+                if (err) return res.send(err)
 
                 res.send('status = true')
             })
         }
-        
+
         // conn.query(sql2,(err,result2) => {
         //     if(err) return res.send(err)
 
